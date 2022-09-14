@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Weather.Service;
 
 namespace Weather.Server
 {
@@ -10,22 +13,9 @@ namespace Weather.Server
     {
         public static HttpListener listener;
         public static string url = "http://localhost:8000/";
-        public static int pageViews = 0;
         public static int requestCount = 0;
 
-        public static string pageData =
-            "<!DOCTYPE>" +
-            "<html>" +
-            "  <head>" +
-            "    <title>HttpListener Example</title>" +
-            "  </head>" +
-            "  <body>" +
-            "    <p>Page Views: {0}</p>" +
-            "    <form method=\"post\" action=\"shutdown\">" +
-            "      <input type=\"submit\" value=\"Shutdown\" {1}>" +
-            "    </form>" +
-            "  </body>" +
-            "</html>";
+        public static WeatherReader WeatherReader = new WeatherReader();
 
 
         public static async Task HandleIncomingConnections()
@@ -48,6 +38,7 @@ namespace Weather.Server
                 Console.WriteLine(req.HttpMethod);
                 Console.WriteLine(req.UserHostName);
                 Console.WriteLine(req.UserAgent);
+                Console.WriteLine(req.ContentType);
                 string text;
                 using (var reader = new StreamReader(req.InputStream,
                            req.ContentEncoding))
@@ -59,20 +50,49 @@ namespace Weather.Server
                 Console.WriteLine();
 
                 // If `shutdown` url requested w/ POST, then shutdown the server after serving the page
-                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/shutdown"))
-                {
-                    Console.WriteLine("Shutdown requested");
-                    runServer = false;
-                }
+                // if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/shutdown"))
+                // {
+                //     Console.WriteLine("Shutdown requested");
+                //     runServer = false;
+                // }
 
                 // Make sure we don't increment the page views counter if `favicon.ico` is requested
-                if (req.Url.AbsolutePath != "/favicon.ico")
-                    pageViews += 1;
+                // if (req.Url.AbsolutePath != "/favicon.ico")
+                //     pageViews += 1;
 
                 // Write the response info
-                string disableSubmit = !runServer ? "disabled" : "";
-                byte[] data = Encoding.UTF8.GetBytes(String.Format(pageData, pageViews, disableSubmit));
-                resp.ContentType = "text/html";
+                // string disableSubmit = !runServer ? "disabled" : "";
+
+                byte[] data;
+                var values = JsonConvert.DeserializeObject<Dictionary<string, object>>(text);
+                
+                if (req.HttpMethod != "GET" || values == null || !values.ContainsKey("method"))
+                {
+                    data = Encoding.UTF8.GetBytes("404 Not Found");
+                    resp.StatusCode = (int) HttpStatusCode.NotFound;
+                    await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                    resp.Close();
+                    
+                    continue;
+                }
+
+                switch (values["method"])
+                {
+                    case "GetCurrentWeather":
+                        text = WeatherReader.GetCurrentWeather(values["city"].ToString());
+                        break;
+                    default:
+                        data = Encoding.UTF8.GetBytes("404 Not Found");
+                        resp.StatusCode = (int) HttpStatusCode.NotFound;
+                        await resp.OutputStream.WriteAsync(data, 0, data.Length);
+                        resp.Close();
+                    
+                        continue;
+                }
+                
+                data = Encoding.UTF8.GetBytes(text);
+
+                resp.ContentType = "application/json";
                 resp.ContentEncoding = Encoding.UTF8;
                 resp.ContentLength64 = data.LongLength;
 
