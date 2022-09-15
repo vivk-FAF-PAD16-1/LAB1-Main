@@ -11,11 +11,12 @@ namespace Weather.Service
         public WeatherReader()
         {
             _connection = new MySqlConnection("Server=127.0.0.1;User ID=root;Password=root;Database=weather");
-            _connection.Open();
+           
         }
         
         public string GetCurrentWeather(string city)
         {
+            _connection.Open();
             var finalData = "";
             // connect to cache and check if there is a current weather
             
@@ -40,7 +41,7 @@ namespace Weather.Service
                 
                 
             }
-            
+            _connection.Close();
             return finalData;
         }
     }

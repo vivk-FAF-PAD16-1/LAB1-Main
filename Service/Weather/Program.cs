@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Threading;
 using Weather.Server;
-using Weather.Service;
-using Weather.TCPServer;
+using Weather.Server.Listener;
+using Weather.Server.Router;
 
 namespace Weather
 {
@@ -15,7 +16,18 @@ namespace Weather
             // var tcpServer = new TcpListener();
             // tcpServer.Initialize(ip, port);
             
-            HttpServer.Start();
+            //HttpServer.Start();
+
+            var weatherRouter = new WeatherRouter() as IRouter;
+
+            var prefixes = new[] { "http://localhost:8000/" };
+            var weatherListener = new AsyncListener(prefixes, weatherRouter) as IAsyncListener;
+            
+            weatherListener.Schedule();
+            
+            Thread.Sleep(100000);
+            
+            weatherListener.Stop();
         }
     }
 }
