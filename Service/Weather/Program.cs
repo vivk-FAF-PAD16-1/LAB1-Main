@@ -3,6 +3,7 @@ using System.Threading;
 using Weather.Server;
 using Weather.Server.Listener;
 using Weather.Server.Router;
+using Weather.Service;
 
 namespace Weather
 {
@@ -18,10 +19,13 @@ namespace Weather
             
             //HttpServer.Start();
 
-            var weatherRouter = new WeatherRouter() as IRouter;
+            var status = new Status();
+            var weatherRouter = new WeatherRouter(status) as IRouter;
 
             var prefixes = new[] { "http://localhost:8000/" };
             var weatherListener = new AsyncListener(prefixes, weatherRouter) as IAsyncListener;
+
+            
             
             weatherListener.Schedule();
             

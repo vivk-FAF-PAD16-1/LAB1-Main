@@ -8,14 +8,18 @@ namespace Weather.Server.Router
     public class WeatherRouter : IRouter
     {
         private readonly WeatherReader _weatherReader;
-        
-        public WeatherRouter()
+        private readonly Status _status;
+
+        public WeatherRouter(Status status)
         {
             _weatherReader = new WeatherReader();
+            _status = status;
         }
 
         public void Route(HttpListenerRequest request, HttpListenerResponse response)
         {
+            _status.OnCallReceived();
+            
             if (request.HttpMethod != "GET")
             {
                 NotFound(response);
@@ -40,10 +44,14 @@ namespace Weather.Server.Router
             switch (endpoint)
             {
                 case "current_weather":
+                    _status.OnCallAccepted();
                     var text = _weatherReader.GetCurrentWeather(request.Url.Segments[2].TrimEnd('/'));
                     SendJson(text, response);
                     break;
                 case "status":
+                    _status.OnCallAccepted();
+                    text = _status.GetStatus();
+                    SendJson(text, response);
                     break;
                 default:
                     NotFound(response);
@@ -62,6 +70,7 @@ namespace Weather.Server.Router
             var output = response.OutputStream;
             output.Write(buffer, 0, buffer.Length);
             output.Close();
+            _status.OnCallSent();
         }
 
         private async void SendJson(string json, HttpListenerResponse response)
@@ -75,6 +84,7 @@ namespace Weather.Server.Router
             // Write out to the response stream (asynchronously), then close it
             await response.OutputStream.WriteAsync(data, 0, data.Length);
             response.Close();
+            _status.OnCallSent();
         }
     }
 }
