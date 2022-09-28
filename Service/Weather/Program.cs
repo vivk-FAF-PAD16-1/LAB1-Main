@@ -9,15 +9,6 @@ namespace Weather
     {
         public static void Main(string[] args)
         {
-            // var ip = "127.0.0.1";
-            // var port = 13000;
-            //
-            // var tcpServer = new TcpListener();
-            // tcpServer.Initialize(ip, port);
-            
-            //HttpServer.Start();
-
-            //var discoveryService = new Discovery();
             var status = new Status();
             var weatherRouter = new WeatherRouter(status) as IRouter;
 
@@ -26,9 +17,7 @@ namespace Weather
 
             weatherListener.Schedule();
             
-            Thread.Sleep(100000);
-            
-            weatherListener.Stop();
+            Thread.Sleep(Timeout.InfiniteTimeSpan);
         }
     }
 }

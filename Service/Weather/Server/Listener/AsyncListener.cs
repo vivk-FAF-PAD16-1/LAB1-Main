@@ -69,8 +69,6 @@ namespace Weather.Server.Listener
             var response = context.Response;
 
             _router.Route(request, response);
-
-            response.Close();
         }
     }
 }

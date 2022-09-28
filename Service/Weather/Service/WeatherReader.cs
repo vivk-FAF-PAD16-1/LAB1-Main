@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Threading;
 using MySqlConnector;
 
 namespace Weather.Service
@@ -16,11 +15,12 @@ namespace Weather.Service
         
         public string GetCurrentWeather(string city)
         {
-            _connection.Open();
             var finalData = "";
             // connect to cache and check if there is a current weather
             
             // connect to database if cache has nothing there
+            _connection.Open();
+        
             var command = new MySqlCommand($"SELECT cw.weather FROM city " +
                                            $"INNER JOIN current_weather cw on city.id = cw.city_id " +
                                            $"WHERE city_name = '{city}';", _connection);

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Weather.Service;
 
 namespace Weather.Server.Router
@@ -10,13 +12,24 @@ namespace Weather.Server.Router
         private readonly WeatherReader _weatherReader;
         private readonly Status _status;
 
+        private static SemaphoreSlim _pool;
+        
         public WeatherRouter(Status status)
         {
             _weatherReader = new WeatherReader();
             _status = status;
-        }
 
-        public void Route(HttpListenerRequest request, HttpListenerResponse response)
+            _pool = new SemaphoreSlim(1, 4);
+        }
+        
+        public async void Route(HttpListenerRequest request, HttpListenerResponse response)
+        {
+            await _pool.WaitAsync();
+            await RouteInternal(request, response);
+            _pool.Release();
+        }
+        
+        private async Task RouteInternal(HttpListenerRequest request, HttpListenerResponse response)
         {
             _status.OnCallReceived();
             
@@ -26,10 +39,10 @@ namespace Weather.Server.Router
                 return;
             }
 
-            foreach (var seg in request.Url.Segments)
-            {
-                Console.WriteLine(seg);
-            }
+            // foreach (var seg in request.Url.Segments)
+            // {
+            //     Console.WriteLine(seg);
+            // }
 
             if (request.Url.Segments.Length == 1)
             {
@@ -45,7 +58,21 @@ namespace Weather.Server.Router
             {
                 case "current_weather":
                     _status.OnCallAccepted();
-                    var text = _weatherReader.GetCurrentWeather(request.Url.Segments[2].TrimEnd('/'));
+                    var text = "";
+                    
+                    try
+                    {
+                        text = await TimeoutAfter(
+                            Task.Run(() => _weatherReader.GetCurrentWeather(request.Url.Segments[2].TrimEnd('/'))),
+                            new TimeSpan(0, 0, 10));
+                    }
+                    catch (TimeoutException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        TimeOut(response);
+                        
+                    }
+                    
                     SendJson(text, response);
                     break;
                 case "status":
@@ -72,6 +99,20 @@ namespace Weather.Server.Router
             output.Close();
             _status.OnCallSent();
         }
+        
+        private void TimeOut(HttpListenerResponse response, string notFoundMessage = "408 Request Timeout!")
+        {
+            var buffer = Encoding.UTF8.GetBytes(notFoundMessage);
+            
+            response.ContentEncoding = Encoding.UTF8;
+            response.ContentLength64 = buffer.Length;
+            response.StatusCode = (int) HttpStatusCode.RequestTimeout;;
+            
+            var output = response.OutputStream;
+            output.Write(buffer, 0, buffer.Length);
+            output.Close();
+            _status.OnCallSent();
+        }
 
         private async void SendJson(string json, HttpListenerResponse response)
         {
@@ -85,6 +126,24 @@ namespace Weather.Server.Router
             await response.OutputStream.WriteAsync(data, 0, data.Length);
             response.Close();
             _status.OnCallSent();
+        }
+
+        public static async Task<TResult> TimeoutAfter<TResult>(Task<TResult> task, TimeSpan timeout)
+        {
+            using (var timeoutCancellationTokenSource = new CancellationTokenSource())
+            {
+
+                var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
+                if (completedTask == task)
+                {
+                    timeoutCancellationTokenSource.Cancel();
+                    return await task; // Very important in order to propagate exceptions
+                }
+                else
+                {
+                    throw new TimeoutException("The operation has timed out.");
+                }
+            }
         }
     }
 }
