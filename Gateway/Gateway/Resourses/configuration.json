@@ -1,0 +1,7 @@
+﻿{
+	"DiscoveryUri" : "http://localhost:40405/",
+	"GatewayPrefixes" : [
+		"http://localhost:40300/",
+		"http://127.0.0.1:40300/"
+	]
+}
