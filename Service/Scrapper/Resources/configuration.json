@@ -1,0 +1,6 @@
+{
+  "MySqlAddress": "127.0.0.1",
+  "UserId": "root",
+  "UserPwd": "root",
+  "DB": "weather"
+}
