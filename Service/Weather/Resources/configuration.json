@@ -1,0 +1,13 @@
+{
+    "MySqlAddress": "127.0.0.1",
+    "UserId": "root",
+    "UserPwd": "root",
+    "DB": "weather",
+
+    "DiscoveryUri" : "http://localhost:40405/",
+    "RegistrationUri" : "http://localhost:40404/",
+    "WeatherPrefixes" : [
+        "http://localhost:40444/",
+        "http://127.0.0.1:40444/"
+    ]
+}

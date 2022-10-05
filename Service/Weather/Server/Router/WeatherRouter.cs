@@ -14,9 +14,9 @@ namespace Weather.Server.Router
 
         private static SemaphoreSlim _pool;
         
-        public WeatherRouter(Status status)
+        public WeatherRouter(string sqlConnectionString, Status status)
         {
-            _weatherReader = new WeatherReader();
+            _weatherReader = new WeatherReader(sqlConnectionString);
             _status = status;
 
             _pool = new SemaphoreSlim(1, 4);
@@ -38,11 +38,6 @@ namespace Weather.Server.Router
                 NotFound(response);
                 return;
             }
-
-            // foreach (var seg in request.Url.Segments)
-            // {
-            //     Console.WriteLine(seg);
-            // }
 
             if (request.Url.Segments.Length == 1)
             {
