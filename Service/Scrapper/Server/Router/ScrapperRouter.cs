@@ -10,12 +10,14 @@ namespace Scrapper.Server.Router
     public class ScrapperRouter : IRouter
     {
         private readonly Status _status;
+        private readonly WeatherScrapper _weatherScrapper;
 
         private static SemaphoreSlim _pool;
         
-        public ScrapperRouter(Status status)
+        public ScrapperRouter(Status status, WeatherScrapper weatherScrapper)
         {
             _status = status;
+            _weatherScrapper = weatherScrapper;
 
             _pool = new SemaphoreSlim(1, 4);
         }
@@ -57,12 +59,13 @@ namespace Scrapper.Server.Router
                 case "current_weather":
                     _status.OnCallAccepted();
                     var text = "";
+                    var ok = 0;
                     
                     try
                     {
-                        // text = await TimeoutAfter(
-                        //     Task.Run(() => _weatherReader.GetCurrentWeather(request.Url.Segments[2].TrimEnd('/'))),
-                        //     new TimeSpan(0, 0, 10));
+                        (ok, text) = await TimeoutAfter(
+                            Task.Run(() => _weatherScrapper.FindCurrentWeather(request.Url.Segments[2].TrimEnd('/'))),
+                            new TimeSpan(0, 0, 10));
                     }
                     catch (TimeoutException e)
                     {
@@ -70,8 +73,12 @@ namespace Scrapper.Server.Router
                         TimeOut(response);
                         
                     }
+
+                    if (ok == 1)
+                        SendJson(text, response);
+                    else
+                        NotFound(response, "404 No Such City!");
                     
-                    SendJson(text, response);
                     break;
                 case "status":
                     _status.OnCallAccepted();

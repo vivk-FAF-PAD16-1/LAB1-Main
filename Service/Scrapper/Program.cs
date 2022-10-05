@@ -1,27 +1,42 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Scrapper.Common;
+using Scrapper.Server.Listener;
+using Scrapper.Server.Router;
+using Scrapper.Service;
 
 namespace Scrapper
 {
     internal class Program
     {
-        private const string ConfigurationPath = "../../Resourses/configuration.json";
+        private const string ConfigurationPath = "Resources/configuration.json";
 		
         public static void Main(string[] args)
         {
             var directoryAbsolutePath = AppDomain.CurrentDomain.BaseDirectory;
+
             var configurationAbsolutePath = Path.Combine(
-                directoryAbsolutePath, ConfigurationPath);
+                directoryAbsolutePath, "../..", ConfigurationPath);
 			
             var configurator = new Configurator(configurationAbsolutePath);
             var configurationData = configurator.Load();
 
             var sqlConnectionString = $"Server={configurationData.MySqlAddress};User ID={configurationData.UserId};Password={configurationData.UserPwd};" +
                                       $"Database={configurationData.DB}";
+
+            var weatherScrapper = new WeatherScrapper(sqlConnectionString, configurationData.OpenWeatherApiKey);
+
+            var status = new Status();
             
+            var scrapperRouter = new ScrapperRouter(status, weatherScrapper);
+			
+            var scrapperListener = new AsyncListener(
+                configurationData.ScrapperPrefixes,
+                scrapperRouter) as IAsyncListener;
+            scrapperListener.Schedule();
             
-            
+            Thread.Sleep(Timeout.InfiniteTimeSpan);
         }
     }
 }

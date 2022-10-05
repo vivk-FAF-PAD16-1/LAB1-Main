@@ -2,5 +2,12 @@
   "MySqlAddress": "127.0.0.1",
   "UserId": "root",
   "UserPwd": "root",
-  "DB": "weather"
+  "DB": "weather",
+  "OpenWeatherApiKey": "b23ec06c90be3dd8dd3893fb400d5b5e",
+  
+  "DiscoveryUri" : "http://localhost:40405/",
+  "ScrapperPrefixes" : [
+    "http://localhost:40555/",
+    "http://127.0.0.1:40555/"
+  ]
 }
