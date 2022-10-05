@@ -6,9 +6,9 @@ namespace Weather.Service
     {
         private MySqlConnection _connection;
         
-        public WeatherReader()
+        public WeatherReader(string connectionString)
         {
-            _connection = new MySqlConnection("Server=127.0.0.1;User ID=root;Password=root;Database=weather");
+            _connection = new MySqlConnection(connectionString);
            
         }
         
