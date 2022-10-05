@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using MySqlConnector;
+﻿using MySqlConnector;
 
 namespace Weather.Service
 {
