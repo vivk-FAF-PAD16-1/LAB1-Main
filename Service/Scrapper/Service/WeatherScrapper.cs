@@ -28,13 +28,48 @@ namespace Scrapper.Service
 
             if (cityData is null)
                 return (0, "");
-            
-            Console.WriteLine($"{cityData.Name}, {cityData.Lat}, {cityData.Lon}");
 
-            //var query = HttpUtility.ParseQueryString(string.Empty);
-            
+            data = ScrapeWeatherData(cityData).Result;
 
             return (1, data);
+        }
+
+        private async Task<string> ScrapeWeatherData(CityData cityData)
+        {
+            var builder = new UriBuilder("https://api.openweathermap.org/data/2.5/weather");
+            builder.Port = -1;
+
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            query["lat"] = cityData.Lat.ToString();
+            query["lon"] = cityData.Lon.ToString();
+            query["appid"] = _apiKey;
+
+            builder.Query = query.ToString();
+            string url = builder.ToString();
+
+            var client = new HttpClient();
+
+            try	
+            {
+                string responseBody = await client.GetStringAsync(url);
+
+                // var jArray = JArray.Parse(responseBody);
+                //
+                // cityData.Name = cityName.Capitalize();
+                // cityData.Lat = jArray[0]["lat"].Value<float>();
+                // cityData.Lon = jArray[0]["lon"].Value<float>();
+                //
+                // return cityData;
+
+                return responseBody;
+            }
+            catch(HttpRequestException e)
+            {
+                Console.WriteLine("\nException Caught!");	
+                Console.WriteLine("Message :{0} ",e.Message);
+            }
+
+            return "";
         }
 
         private async Task<CityData> FindCityData(string cityName)
@@ -92,7 +127,6 @@ namespace Scrapper.Service
             try	
             {
                 string responseBody = await client.GetStringAsync(url);
-                Console.WriteLine(responseBody);
                 
                 var jArray = JArray.Parse(responseBody);
 

@@ -105,7 +105,6 @@
         <Compile Include="Common\Data\CityData.cs" />
         <Compile Include="Common\Data\ConfigurationData.cs" />
         <Compile Include="Common\Data\EndpointData.cs" />
-        <Compile Include="Common\HttpUtilities.cs" />
         <Compile Include="Common\JsonUtilities.cs" />
         <Compile Include="Common\StringUtilities.cs" />
         <Compile Include="Program.cs" />
@@ -114,6 +113,7 @@
         <Compile Include="Server\Listener\IAsyncListener.cs" />
         <Compile Include="Server\Router\IRouter.cs" />
         <Compile Include="Server\Router\ScrapperRouter.cs" />
+        <Compile Include="Service\Discovery.cs" />
         <Compile Include="Service\Status.cs" />
         <Compile Include="Service\WeatherScrapper.cs" />
     </ItemGroup>

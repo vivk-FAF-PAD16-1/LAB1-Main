@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using Scrapper.Common;
+using Scrapper.Common.Data;
 using Scrapper.Server.Listener;
 using Scrapper.Server.Router;
 using Scrapper.Service;
@@ -35,6 +36,31 @@ namespace Scrapper
                 configurationData.ScrapperPrefixes,
                 scrapperRouter) as IAsyncListener;
             scrapperListener.Schedule();
+
+            #region Registration to discovery
+            
+            var discovery = new Discovery(configurationData.RegistrationUri);
+
+            var endpointsData = new []
+            {
+                new EndpointData
+                {
+                    Endpoint = "scrape_current_weather",
+                    DestinationUri = "http://localhost:40555/current_weather"
+                },
+                new EndpointData
+                {
+                    Endpoint = "scrapper_status",
+                    DestinationUri = "http://localhost:40555/status"
+                },
+            };
+
+            foreach (var endpointData in endpointsData)
+            {
+                discovery.Register(endpointData);
+            }
+
+            #endregion
             
             Thread.Sleep(Timeout.InfiniteTimeSpan);
         }

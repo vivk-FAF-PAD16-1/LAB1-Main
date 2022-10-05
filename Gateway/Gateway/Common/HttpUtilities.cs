@@ -40,7 +40,7 @@ namespace Gateway.Common
             output.Close();
         }
         
-        private const string NotFoundMessage = "OLEG NOT FOUND!";
+        private const string NotFoundMessage = "404 NOT FOUND!";
         private const int NotFoundStatus = 404;
         
         public static void NotFoundResponse(HttpListenerResponse response)
