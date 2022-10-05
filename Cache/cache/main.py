@@ -1,6 +1,4 @@
-import redis
-from flask import Flask, request
-from config import RedisConfig
+from flask import Flask
 
 
 def create_app():
