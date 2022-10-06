@@ -97,6 +97,7 @@
         <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
           <HintPath>packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
         </Reference>
+        <Reference Include="System.Web" />
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
@@ -111,7 +112,6 @@
         <Compile Include="Server\Router\IRouter.cs" />
         <Compile Include="Server\Router\WeatherRouter.cs" />
         <Compile Include="Service\Discovery.cs" />
-        <Compile Include="Service\Model\CurrentWeatherModel.cs" />
         <Compile Include="Service\Status.cs" />
         <Compile Include="Service\WeatherReader.cs" />
     </ItemGroup>

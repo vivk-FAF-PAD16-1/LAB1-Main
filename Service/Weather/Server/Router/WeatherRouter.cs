@@ -14,9 +14,9 @@ namespace Weather.Server.Router
 
         private static SemaphoreSlim _pool;
         
-        public WeatherRouter(string sqlConnectionString, Status status)
+        public WeatherRouter(string sqlConnectionString, string cacheAddressUri, Status status)
         {
-            _weatherReader = new WeatherReader(sqlConnectionString);
+            _weatherReader = new WeatherReader(sqlConnectionString, cacheAddressUri);
             _status = status;
 
             _pool = new SemaphoreSlim(1, 4);
@@ -101,7 +101,7 @@ namespace Weather.Server.Router
             
             response.ContentEncoding = Encoding.UTF8;
             response.ContentLength64 = buffer.Length;
-            response.StatusCode = (int) HttpStatusCode.RequestTimeout;;
+            response.StatusCode = (int) HttpStatusCode.RequestTimeout;
             
             var output = response.OutputStream;
             output.Write(buffer, 0, buffer.Length);
