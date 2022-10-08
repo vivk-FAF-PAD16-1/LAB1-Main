@@ -22,16 +22,17 @@ namespace Scrapper.Service
 
         public (int, string) FindCurrentWeather(string city)
         {
-            var data = "";
+            var weatherData = "";
 
             var cityData = FindCityData(city).Result;
 
             if (cityData is null)
                 return (0, "");
 
-            data = ScrapeWeatherData(cityData).Result;
+            weatherData = ScrapeWeatherData(cityData).Result;
+            AddWeatherDataToBd(cityData, weatherData);
 
-            return (1, data);
+            return (1, weatherData);
         }
 
         private async Task<string> ScrapeWeatherData(CityData cityData)
@@ -60,7 +61,7 @@ namespace Scrapper.Service
                 // cityData.Lon = jArray[0]["lon"].Value<float>();
                 //
                 // return cityData;
-
+                
                 return responseBody;
             }
             catch(HttpRequestException e)
@@ -106,8 +107,6 @@ namespace Scrapper.Service
 
             return cityData;
         }
-
-        
         
         private async Task<CityData> ScrapeCityData(string cityName)
         {
@@ -143,7 +142,6 @@ namespace Scrapper.Service
                 Console.WriteLine("Message :{0} ",e.Message);
             }
             
-            
             return null;
         }
 
@@ -162,5 +160,18 @@ namespace Scrapper.Service
         }
 
 
+        private void AddWeatherDataToBd(CityData cityData, string weatherData)
+        {
+            _connection.Open();
+            var cmd = new MySqlCommand($"INSERT INTO current_weather (city_id, weather)" +
+                                       $"VALUES (" +
+                                       $"(select id from city where city.city_name='{cityData.Name}')," +
+                                       $" '{weatherData}');",
+                _connection);
+            
+            cmd.ExecuteNonQuery();
+            
+            _connection.Close();
+        }
     }
 }
