@@ -27,7 +27,10 @@ namespace Weather
             var sqlConnectionString = $"Server={configurationData.MySqlAddress};User ID={configurationData.UserId};Password={configurationData.UserPwd};" +
                                       $"Database={configurationData.DB}";
 
-            var weatherRouter = new WeatherRouter(sqlConnectionString, configurationData.CacheAddressUri, status) as IRouter;
+            var weatherReader = new WeatherReader(sqlConnectionString, configurationData.CacheAddressUri,
+                configurationData.GatewayAddressUri);
+
+            var weatherRouter = new WeatherRouter(weatherReader, status) as IRouter;
 
             var prefixes = configurationData.WeatherPrefixes;
             var weatherListener = new AsyncListener(prefixes, weatherRouter) as IAsyncListener;

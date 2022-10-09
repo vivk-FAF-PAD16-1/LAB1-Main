@@ -16,11 +16,13 @@ namespace Weather.Service
         
         private MySqlConnection _connection;
         private string _cacheAddressUri;
+        private string _gatewayAddressUri;
         
-        public WeatherReader(string sqlConnectionString, string cacheAddressUri)
+        public WeatherReader(string sqlConnectionString, string cacheAddressUri, string gatewayAddressUri)
         {
             _connection = new MySqlConnection(sqlConnectionString);
             _cacheAddressUri = cacheAddressUri;
+            _gatewayAddressUri = gatewayAddressUri;
             _client = new HttpClient();
         }
         
@@ -56,8 +58,36 @@ namespace Weather.Service
                 // connect to cache to pass it the new data it doesnt have
                 AddDataToCache(cacheKey, finalData);
             }
+            else
+            {
+                var (ok2, scrapedData) = GetDataFromScrapper($"scrape_current_weather/{city}").Result;
+                if (ok2)
+                {
+                    finalData = scrapedData;
+                    AddDataToCache(cacheKey, finalData);
+                }
+            }
             _connection.Close();
             return finalData;
+        }
+
+        private async Task<(bool, string)> GetDataFromScrapper(string endpoint)
+        {
+            var uri = _gatewayAddressUri + endpoint;
+            try
+            {
+                var response = await _client.GetAsync(uri);
+                return (true, response.Content.ToString());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("\nException Caught!");	
+                Console.WriteLine("Message :{0} ",e.Message);
+            }
+            
+            
+            
+            return (false, "");
         }
 
         private async void AddDataToCache(string key, string data)
