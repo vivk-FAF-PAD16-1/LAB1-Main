@@ -44,12 +44,12 @@ namespace Weather
                 new EndpointData
                 {
                     Endpoint = "current_weather",
-                    DestinationUri = "http://localhost:40444/current_weather"
+                    DestinationUri = $"{prefixes[0]}current_weather"
                 },
                 new EndpointData
                 {
                     Endpoint = "weather_status",
-                    DestinationUri = "http://localhost:40444/status"
+                    DestinationUri = $"{prefixes[0]}status"
                 },
             };
 
