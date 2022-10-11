@@ -14,9 +14,9 @@ namespace Weather.Server.Router
 
         private static SemaphoreSlim _pool;
         
-        public WeatherRouter(string sqlConnectionString, string cacheAddressUri, Status status)
+        public WeatherRouter(WeatherReader weatherReader, Status status)
         {
-            _weatherReader = new WeatherReader(sqlConnectionString, cacheAddressUri);
+            _weatherReader = weatherReader;
             _status = status;
 
             _pool = new SemaphoreSlim(1, 4);
