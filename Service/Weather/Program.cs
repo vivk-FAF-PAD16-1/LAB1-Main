@@ -27,7 +27,10 @@ namespace Weather
             var sqlConnectionString = $"Server={configurationData.MySqlAddress};User ID={configurationData.UserId};Password={configurationData.UserPwd};" +
                                       $"Database={configurationData.DB}";
 
-            var weatherRouter = new WeatherRouter(sqlConnectionString, configurationData.CacheAddressUri, status) as IRouter;
+            var weatherReader = new WeatherReader(sqlConnectionString, configurationData.CacheAddressUri,
+                configurationData.GatewayAddressUri);
+
+            var weatherRouter = new WeatherRouter(weatherReader, status) as IRouter;
 
             var prefixes = configurationData.WeatherPrefixes;
             var weatherListener = new AsyncListener(prefixes, weatherRouter) as IAsyncListener;
@@ -41,12 +44,12 @@ namespace Weather
                 new EndpointData
                 {
                     Endpoint = "current_weather",
-                    DestinationUri = "http://localhost:40444/current_weather"
+                    DestinationUri = $"{prefixes[0]}current_weather"
                 },
                 new EndpointData
                 {
                     Endpoint = "weather_status",
-                    DestinationUri = "http://localhost:40444/status"
+                    DestinationUri = $"{prefixes[0]}status"
                 },
             };
 
