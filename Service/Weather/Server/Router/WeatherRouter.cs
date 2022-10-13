@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Weather.Service;
+using Weather.SlotStorage;
 
 namespace Weather.Server.Router
 {
@@ -13,20 +14,27 @@ namespace Weather.Server.Router
         private readonly Status _status;
 
         private static SemaphoreSlim _pool;
+        private static ISlotStorage _slots;
         
         public WeatherRouter(string sqlConnectionString, string cacheAddressUri, Status status)
         {
             _weatherReader = new WeatherReader(sqlConnectionString, cacheAddressUri);
             _status = status;
 
-            _pool = new SemaphoreSlim(1, 4);
+            _slots = new RequestSlotStorage(1);
         }
         
         public async void Route(HttpListenerRequest request, HttpListenerResponse response)
         {
-            await _pool.WaitAsync();
+            if (_slots.IsFull())
+            {
+                TooManyRequests(response);
+                return;
+            }
+            
+            _slots.Load();
             await RouteInternal(request, response);
-            _pool.Release();
+            _slots.Unload();
         }
         
         private async Task RouteInternal(HttpListenerRequest request, HttpListenerResponse response)
@@ -59,13 +67,13 @@ namespace Weather.Server.Router
                     {
                         text = await TimeoutAfter(
                             Task.Run(() => _weatherReader.GetCurrentWeather(request.Url.Segments[2].TrimEnd('/'))),
-                            new TimeSpan(0, 0, 10));
+                            new TimeSpan(0, 0, 5));
                     }
                     catch (TimeoutException e)
                     {
                         Console.WriteLine(e.Message);
                         TimeOut(response);
-                        
+                        return;
                     }
                     
                     SendJson(text, response);
@@ -139,6 +147,20 @@ namespace Weather.Server.Router
                     throw new TimeoutException("The operation has timed out.");
                 }
             }
+        }
+        
+        private void TooManyRequests(HttpListenerResponse response, string notFoundMessage = "429 Too Many Requests!")
+        {
+            var buffer = Encoding.UTF8.GetBytes(notFoundMessage);
+            
+            response.ContentEncoding = Encoding.UTF8;
+            response.ContentLength64 = buffer.Length;
+            response.StatusCode = 429; // 429 = TooManyRequests;
+            
+            var output = response.OutputStream;
+            output.Write(buffer, 0, buffer.Length);
+            output.Close();
+            _status.OnCallSent();
         }
     }
 }

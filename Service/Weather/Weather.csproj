@@ -114,6 +114,8 @@
         <Compile Include="Service\Discovery.cs" />
         <Compile Include="Service\Status.cs" />
         <Compile Include="Service\WeatherReader.cs" />
+        <Compile Include="SlotStorage\ISlotStorage.cs" />
+        <Compile Include="SlotStorage\RequestSlotStorage.cs" />
     </ItemGroup>
     <ItemGroup>
       <Content Include=".gitignore" />
