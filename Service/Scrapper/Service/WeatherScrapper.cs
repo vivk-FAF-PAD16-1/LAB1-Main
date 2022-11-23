@@ -20,19 +20,20 @@ namespace Scrapper.Service
             _apiKey = openWeatherApiKey;
         }
 
-        public (int, string) FindCurrentWeather(string city)
+        public (bool, string) FindCurrentWeather(string city)
         {
             var weatherData = "";
+            
 
-            var cityData = FindCityData(city).Result;
+            var (ok, cityData) = FindCityData(city).Result;
 
-            if (cityData is null)
-                return (0, "");
+            if (!ok)
+                return (ok, "");
 
             weatherData = ScrapeWeatherData(cityData).Result;
             AddWeatherDataToBd(cityData, weatherData);
 
-            return (1, weatherData);
+            return (ok, weatherData);
         }
 
         private async Task<string> ScrapeWeatherData(CityData cityData)
@@ -73,7 +74,7 @@ namespace Scrapper.Service
             return "";
         }
 
-        private async Task<CityData> FindCityData(string cityName)
+        private async Task<(bool, CityData)> FindCityData(string cityName)
         {
             _connection.Open();
             
@@ -83,32 +84,28 @@ namespace Scrapper.Service
 
             var cityData = new CityData();
             
-            bool isFound = false;
             while (reader.Read())
             {
                 cityData.Name = reader.GetString(0);
                 cityData.Lat = reader.GetFloat(1);
                 cityData.Lon = reader.GetFloat(2);
-                isFound = true;
-                break;
+                return (true, cityData);
             }
             
             await _connection.CloseAsync();
+            bool ok;
 
-            if (!isFound)
+            (ok, cityData) = await ScrapeCityData(cityName);
+
+            if (ok)
             {
-                cityData = await ScrapeCityData(cityName);
-
-                if (cityData != null)
-                {
-                    AddCityDataToBd(cityData);
-                }
+                AddCityDataToBd(cityData);
             }
 
-            return cityData;
+            return (ok, cityData);
         }
         
-        private async Task<CityData> ScrapeCityData(string cityName)
+        private async Task<(bool, CityData)> ScrapeCityData(string cityName)
         {
             var builder = new UriBuilder("http://api.openweathermap.org/geo/1.0/direct");
             builder.Port = -1;
@@ -126,15 +123,19 @@ namespace Scrapper.Service
             try	
             {
                 string responseBody = await client.GetStringAsync(url);
+
+                Console.WriteLine(responseBody);
                 
                 var jArray = JArray.Parse(responseBody);
-
+                if (jArray.Count == 0)
+                    return (false, null);
+                
                 var cityData = new CityData();
                 cityData.Name = cityName.Capitalize();
                 cityData.Lat = jArray[0]["lat"].Value<float>();
                 cityData.Lon = jArray[0]["lon"].Value<float>();
 
-                return cityData;
+                return (true, cityData);
             }
             catch(HttpRequestException e)
             {
@@ -142,7 +143,7 @@ namespace Scrapper.Service
                 Console.WriteLine("Message :{0} ",e.Message);
             }
             
-            return null;
+            return (false, null);
         }
 
         private void AddCityDataToBd(CityData cityData)

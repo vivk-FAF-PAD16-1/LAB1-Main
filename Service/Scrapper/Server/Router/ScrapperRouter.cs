@@ -58,8 +58,15 @@ namespace Scrapper.Server.Router
             {
                 case "current_weather":
                     _status.OnCallAccepted();
+                    
+                    if (request.Url.Segments.Length != 3)
+                    {
+                        NotFound(response);
+                        return;
+                    }
+                    
                     var text = "";
-                    var ok = 0;
+                    var ok = false;
                     
                     try
                     {
@@ -74,7 +81,7 @@ namespace Scrapper.Server.Router
                         
                     }
 
-                    if (ok == 1)
+                    if (ok)
                         SendJson(text, response);
                     else
                         NotFound(response, "404 No Such City!");

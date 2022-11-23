@@ -121,8 +121,10 @@ namespace Weather.Service
                 _client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
                 string responseBody = await _client.GetStringAsync(_cacheAddressUri + "cache/get/" + key);
+
+                Console.WriteLine(responseBody);
                 
-                if (responseBody != "null")
+                if (responseBody != "null\n")
                     return (true, responseBody);
             }
             catch(HttpRequestException e)

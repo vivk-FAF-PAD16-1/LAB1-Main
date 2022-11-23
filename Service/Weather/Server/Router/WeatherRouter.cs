@@ -13,7 +13,6 @@ namespace Weather.Server.Router
         private readonly WeatherReader _weatherReader;
         private readonly Status _status;
 
-        private static SemaphoreSlim _pool;
         private static ISlotStorage _slots;
         
         public WeatherRouter(WeatherReader weatherReader, Status status)
@@ -39,6 +38,7 @@ namespace Weather.Server.Router
         
         private async Task RouteInternal(HttpListenerRequest request, HttpListenerResponse response)
         {
+            Console.WriteLine("Got request");
             _status.OnCallReceived();
             
             if (request.HttpMethod != "GET")
@@ -67,7 +67,7 @@ namespace Weather.Server.Router
                     {
                         text = await TimeoutAfter(
                             Task.Run(() => _weatherReader.GetCurrentWeather(request.Url.Segments[2].TrimEnd('/'))),
-                            new TimeSpan(0, 0, 5));
+                            new TimeSpan(0, 0, 10));
                     }
                     catch (TimeoutException e)
                     {
