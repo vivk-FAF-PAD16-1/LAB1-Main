@@ -1,0 +1,13 @@
+{
+    "MySqlAddresses": [
+        "127.0.0.1",
+        "123"
+    ],
+
+    "DiscoveryUri" : "http://localhost:40405/",
+    "RegistrationUri" : "http://localhost:40404/",
+    "DBMaintenancePrefixes" : [
+        "http://localhost:40444/",
+        "http://127.0.0.1:40444/"
+    ]
+}
