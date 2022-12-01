@@ -1,4 +1,7 @@
 ﻿using DBMaintenance.Common;
+using DBMaintenance.Listener;
+using DBMaintenance.Router;
+using DBMaintenance.Service;
 
 namespace DBMaintenance;
 
@@ -15,7 +18,16 @@ internal static class Program
 
         var configurator = new Configurator(configurationAbsolutePath);
         var configurationData = configurator.Load();
+
+        var maintenanceService = new MaintenanceService(configurationData.MySqlAddresses);
         
+        var maintenanceRouter = new MaintenanceRouter(maintenanceService);
+            
+        var maintenanceListener = new AsyncListener(
+            configurationData.MaintenancePrefixes, 
+            maintenanceRouter) as IAsyncListener;
+        maintenanceListener.Schedule();
         
+        Thread.Sleep(Timeout.InfiniteTimeSpan);
     }
 }

@@ -1,13 +1,11 @@
 {
     "MySqlAddresses": [
-        "127.0.0.1",
-        "123"
+        "10.208.0.100s",
+        "10.208.0.200"
     ],
-
-    "DiscoveryUri" : "http://localhost:40405/",
     "RegistrationUri" : "http://localhost:40404/",
-    "DBMaintenancePrefixes" : [
-        "http://localhost:40444/",
-        "http://127.0.0.1:40444/"
+    "MaintenancePrefixes" : [
+        "http://localhost:40666/",
+        "http://127.0.0.1:40666/"
     ]
 }
