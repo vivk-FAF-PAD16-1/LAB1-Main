@@ -26,9 +26,9 @@ public class MaintenanceService
 
     private bool CheckCurrentAddress()
     {
-        var sqlConnectionString = $"Server={_dbAddresses[_currentAddressId]};User ID=root;Password=rootpswdmaster1;" +
-                                  $"Database=test";
-        
+        var sqlConnectionString = $"Server={_dbAddresses[_currentAddressId]};Port=3306;User ID=root;Password=root;" +
+                                  $"Database=mysql";
+        Console.WriteLine(sqlConnectionString);
         using MySqlConnection connection = new MySqlConnection(sqlConnectionString);
         
         connection.ConnectionString = sqlConnectionString;
@@ -38,8 +38,9 @@ public class MaintenanceService
             connection.Close();
             return true;
         }
-        catch (SqlException)
+        catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return false;
         }
     }

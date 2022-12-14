@@ -31,31 +31,20 @@ public class MaintenanceRouter : IRouter
         //     NotFound(response);
         //     return;
         // }
-
-        Ok(request, response, _maintenanceService.GetCurrentSqlDatabaseAddress());
+        Console.WriteLine(request.Url);
+        Ok(response, _maintenanceService.GetCurrentSqlDatabaseAddress());
     }
 
     #region Useful Methods
 
-    public void Ok(HttpListenerRequest request, HttpListenerResponse response, string message = "Ok!")
+    public void Ok(HttpListenerResponse response, string message = "Ok!")
     {
-        var requestContent = HttpUtilities.ReadRequestBody(request);
+        var buffer = Encoding.UTF8.GetBytes(message);
 
-        var client = new HttpClient();
-        var newRequest = new HttpRequestMessage(new HttpMethod(request.HttpMethod), message);
-        newRequest.Content = new StringContent(requestContent, Encoding.UTF8, request.ContentType);
-			
-        var newResponse = client.SendAsync(newRequest)
-            .GetAwaiter()
-            .GetResult();
-        var body = HttpUtilities.ReadResponseBody(newResponse);
-			
-        var buffer = Encoding.UTF8.GetBytes(body);
-            
         response.ContentEncoding = Encoding.UTF8;
         response.ContentLength64 = buffer.Length;
-        response.StatusCode = (int)newResponse.StatusCode;
-            
+        response.StatusCode = (int)HttpStatusCode.OK;
+        
         var output = response.OutputStream;
         output.Write(buffer, 0, buffer.Length);
         output.Close();
