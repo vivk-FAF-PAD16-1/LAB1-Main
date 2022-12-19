@@ -20,18 +20,8 @@ public class MaintenanceRouter : IRouter
 
     private async Task RouteInternal(HttpListenerRequest request, HttpListenerResponse response)
     {
-        if (request.HttpMethod != "GET")
-        {
-            NotFound(response, "No status endpoint yet!");
-            return;
-        }
-
-        // if (request.Url.Segments.Length == 1)
-        // {
-        //     NotFound(response);
-        //     return;
-        // }
-        Console.WriteLine(request.Url);
+        
+        
         Ok(response, _maintenanceService.GetCurrentSqlDatabaseAddress());
     }
 

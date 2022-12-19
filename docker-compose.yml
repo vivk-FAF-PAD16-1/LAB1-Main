@@ -4,6 +4,8 @@ services:
     mysql1:
         image: mysql
         container_name: mysql1
+        volumes:
+            - ./conf/master1.cnf:/etc/mysql/conf.d/my.cnf
         environment:
             MYSQL_ROOT_PASSWORD: root
         ports:
@@ -13,6 +15,8 @@ services:
     mysql2:
         image: mysql
         container_name: mysql2
+        volumes:
+            - ./conf/master2.cnf:/etc/mysql/conf.d/my.cnf
         environment:
             MYSQL_ROOT_PASSWORD: root
         ports:
