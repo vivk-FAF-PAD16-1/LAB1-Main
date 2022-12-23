@@ -1,9 +1,8 @@
-﻿namespace Scrapper.Common.Data
+﻿namespace Scrapper.Common.Data;
+
+public class CityData
 {
-    public class CityData
-    {
-        public string Name { get; set; }
-        public float Lat { get; set; }
-        public float Lon { get; set; }
-    }
+    public string Name { get; set; }
+    public float Lat { get; set; }
+    public float Lon { get; set; }
 }
