@@ -31,6 +31,25 @@ services:
             - 127.0.0.1:40666:40666
         networks:
             - replication
+    discovery:
+        build:
+            ./Discovery
+        container_name: discovery
+        ports:
+            - 127.0.0.1:40404:40404
+            - 127.0.0.1:40405:40405
+        networks:
+            - replication
+    scrapper:
+        build:
+            ./Service/Scrapper
+        container_name: scrapper
+        ports:
+            - 127.0.0.1:40555:40555
+        networks:
+            - replication
+        depends_on:
+            - discovery
 networks:
     replication:
         name: replication

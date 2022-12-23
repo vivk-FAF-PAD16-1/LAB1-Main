@@ -1,4 +1,10 @@
-﻿# Common IntelliJ Platform excludes
+﻿# IntelliJ project files
+.idea/
+*.iml
+out
+gen
+
+# Common IntelliJ Platform excludes
 
 # User specific
 **/.idea/**/workspace.xml
@@ -20,8 +26,6 @@
 **/.idea/**/*.iml
 **/.idea/**/contentModel.xml
 **/.idea/**/modules.xml
-
-.idea/
 
 *.suo
 *.user

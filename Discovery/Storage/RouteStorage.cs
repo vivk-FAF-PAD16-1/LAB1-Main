@@ -1,9 +1,8 @@
-using System.Collections.Generic;
-using Discovery.Common;
+﻿using Discovery.Common;
 
-namespace Discovery.Storage
-{
-    public class RouteStorage : IStorage
+namespace Discovery.Storage;
+
+public class RouteStorage : IStorage
     {
         private Dictionary<string, DestinationContainer> _storage;
         
@@ -102,4 +101,3 @@ namespace Discovery.Storage
             return (false, null, null);
         }
     }
-}

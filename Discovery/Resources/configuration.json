@@ -1,0 +1,8 @@
+{
+    "DiscoveryPrefixes" : [
+        "http://+:40405/"
+    ],
+    "RegistratorPrefixes" : [
+        "http://+:40404/"
+    ]
+}

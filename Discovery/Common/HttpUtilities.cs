@@ -1,12 +1,9 @@
-﻿using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Text;
 
-namespace Discovery.Common
-{
-    public static class HttpUtilities
+namespace Discovery.Common;
+
+public static class HttpUtilities
     {
         public static string ReadRequestBody(HttpListenerRequest request)
         {
@@ -91,4 +88,3 @@ namespace Discovery.Common
             return true;
         }
     }
-}

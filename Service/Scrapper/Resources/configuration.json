@@ -8,8 +8,8 @@
 
     "OpenWeatherApiKey": "b23ec06c90be3dd8dd3893fb400d5b5e",
 
-    "DiscoveryUri" : "http://discovery:40405/",
-    "RegistrationUri" : "http://discovery:40404/",
+    "DiscoveryUri" : "http://discovery:40405",
+    "RegistrationUri" : "http://discovery:40404",
 
     "ScrapperPrefixes" : [
         "http://+:40555/"

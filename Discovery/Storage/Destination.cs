@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
+﻿namespace Discovery.Storage;
 
-namespace Discovery.Storage
-{
-    public readonly struct Destination : IEquatable<Destination>
+public readonly struct Destination : IEquatable<Destination>
     {
         public string Uri { get; }
 
@@ -98,4 +95,3 @@ namespace Discovery.Storage
         
         
     }
-}
